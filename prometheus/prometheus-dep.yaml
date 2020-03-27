@@ -25,7 +25,7 @@ spec:
             [
               {
                 "prometheus_url": "http://%%host%%:%%port%%/metrics",
-                "namespace": "monitoring",
+                "namespace": "prometh",
                 "metrics": [ {"promhttp_metric_handler_requests_total": "prometheus.handler.requests.total"}]
               }
             ]
