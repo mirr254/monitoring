@@ -6,6 +6,10 @@
 
 ## Instructions
 
+- Install Gluu server using one of the following
+  - [Kustomize](https://github.com/GluuFederation/enterprise-edition/blob/4.1/pygluu/kubernetes/templates/README.md#install-gluu-using-pygluu-kubernetes-with-kustomize)
+  - [Helm](https://github.com/GluuFederation/enterprise-edition/blob/4.1/pygluu/kubernetes/templates/README.md#install-gluu-using-helm)
+
 ### Create a namespace
 
 We separate Gluu components from monitoring components/tools by creating a separate namespace for each monitoring tool. In this case since we have 2 monitoring tools, we wil have 3 namespaces - inclusive of Gluu Server namespace.   
