@@ -67,16 +67,3 @@ For each of the monitoring tool namespace we must assign cluster reader permisio
   ```
 
 !!!NOTE: This part has been included in by default in [proth-cm](/prometheus/proth-cm.yaml). If it is not being used, it should be removed. If not it will cause health check error in prometheus targets.
-
-## Using helm
-
-### Datadog
-
-```
-helm install --name datadog-agent-v1 \
-   --set datadog.apiKey=<DataDog API Key> \
-   --set datadog.apmEnabled=true \
-   --set datadog.logsEnabled=true \
-   stable/datadog
-   - n datadog
-```
