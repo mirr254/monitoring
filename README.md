@@ -71,3 +71,50 @@ For each of the monitoring tool namespace we must assign cluster reader permisio
   ```
 
 !!!NOTE: This part has been included in by default in [proth-cm](/prometheus/proth-cm.yaml). If it is not being used, it should be removed. If not it will cause health check error in prometheus targets.
+
+## Using helm
+
+### Prerequisites
+- Helm 2.10+
+- Tiller
+
+### Datadog
+- Helm2 creates a namespace to use automatically when one defines the namespace to deploy in.
+
+- install datadog
+  ```
+  helm install --name datadog-agent-v1 \
+      --set datadog.apiKey=<DataDog API Key> \
+      --set datadog.apmEnabled=true \
+      --set datadog.logsEnabled=true \
+      stable/datadog
+      --namespace datadog
+ 
+  ```
+
+### prometheus
+
+- Provided here is a [values' file](/helm/prometheus-values.yaml) that is to be used to override the default installation params for prometheus helm chart. 
+
+- The custom `values.yaml` file above has the annotations needed to integrate datadog with prometheus.
+
+- Install prometheus
+  ` helm install --name prometheus --namespace prometheus -f helm/prometheus-values.yaml stable/prometheus `
+
+- One can access the prometheus UI via port-forwarding
+  `export POD_NAME=$(kubectl get pods --namespace prometheus -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")`
+  `kubectl --namespace prometheus port-forward $POD_NAME 9090 `
+
+### Kube-state Metrics for more verbose metrics
+
+- install the chart. kube-state metrics installs its resources in `kube-system` namespace so no need to define the namespace
+  `helm2 install --name kube-state stable/kube-state-metrics`
+
+- Add the kube-state metrics job in prometheus serverFiles.
+  ```
+        - job_name: 'kube-state-metrics'
+          static_configs:
+            - targets: ['kube-state-kube-state-metrics.default.svc.cluster.local:8080']
+  ```
+
+That's it. All the metrics will be exported to datadog `metrics` -> `summary`
