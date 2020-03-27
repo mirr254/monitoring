@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+  labels:
+    app: prometheus
+    purpose: example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      purpose: example
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        purpose: example
+      annotations:
+          ad.datadoghq.com/prometheus.check_names: |
+            ["openmetrics"]
+          ad.datadoghq.com/prometheus.init_configs: |
+            [{}]
+          ad.datadoghq.com/prometheus.instances: |
+            [
+              {
+                "prometheus_url": "http://%%host%%:%%port%%/metrics",
+                "namespace": "monitoring",
+                "metrics": [ {"promhttp_metric_handler_requests_total": "prometheus.handler.requests.total"}]
+              }
+            ]
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.12.0
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            defaultMode: 420
+            name: prometheus-server-conf
+  
+        - name: prometheus-storage-volume
+          emptyDir: {}
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-example-service
+spec:
+  selector:
+    app: prometheus
+    purpose: example
+  ports:
+  - name: promui
+    protocol: TCP
+    port: 9090
+    targetPort: 9090
